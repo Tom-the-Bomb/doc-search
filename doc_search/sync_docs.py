@@ -18,10 +18,10 @@ class SyncScraper:
         pat   = '.*?'.join(map(re.escape, query))
         regex = re.compile(pat, flags = re.IGNORECASE)
 
-        for k, _ in collection:
+        for k, v in collection:
             out = regex.search(k)
             if out:
-                suggestions.append((len(out.group()), out.start(), k))
+                suggestions.append((len(out.group()), out.start(), (k,v)))
 
         return [z for _, _, z in sorted(
             suggestions, 
