@@ -45,9 +45,10 @@ class SyncScraper:
             if not match:
                 continue
 
-            name, __, __, location, __ = match.groups()
+            name, __, __, location, display = match.groups()
             location = location.strip("$")
 
+            name = name if display == "-" else display
             self.cache[url][name] = url + location + name
 
         return self.cache[url]
@@ -70,7 +71,7 @@ class SyncScraper:
                 raise RuntimeError("Invalid documentation url, url provided does not have an objects.inv")
             else:
                 raise RequestError(f"{resp.status} {resp.reason}")
-                
+
         data = self._fuzzy_finder(
             query = query, 
             collection = list(self.cache[page].items()), 
