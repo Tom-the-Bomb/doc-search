@@ -45,11 +45,18 @@ class SyncScraper:
             if not match:
                 continue
 
-            name, __, __, location, display = match.groups()
-            location = location.strip("$")
+            name, directive, __, location, display = match.groups()
+            domain, subdirective = directive.split(':')
+            if directive == 'std:doc':
+                subdirective = 'label'
 
-            name = name if display == "-" else display
-            self.cache[url][name] = url + location + name
+            if location.endswith('$'):
+                location = location[:-1] + name
+
+            key = name if display == '-' else display
+            prefix = f'{subdirective}:' if domain == 'std' else ''
+
+            self.cache[url][f'{prefix}{key}'] = os.path.join(url, location)
 
         return self.cache[url]
 
