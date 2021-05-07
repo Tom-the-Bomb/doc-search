@@ -23,10 +23,10 @@ class SyncScraper:
             if out:
                 suggestions.append((len(out.group()), out.start(), k))
 
-        def sort_key(tup):
-            return tup[0], tup[1], tup[2][0]
-
-        return [z for _, _, z in sorted(suggestions, key=sort_key)]
+        return [z for _, _, z in sorted(
+            suggestions, 
+            key = lambda tup: tup[0], tup[1], tup[2][0]
+        )]
 
     def _parse_bytes(self, data: bytes):
         decompressor = zlib.decompressobj()
