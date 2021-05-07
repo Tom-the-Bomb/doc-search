@@ -51,14 +51,15 @@ class AsyncScraper(SyncScraper):
                     data = "".join(await self._parse_bytes(data))
                     await self._split_line(page, data)
 
-                    data = await self._fuzzy_finder(
-                        query = query, 
-                        collection = list(self.cache[page].items()), 
-                    )
-                    return data
-
                 elif r.status == 404:
                     raise RuntimeError("Invalid documentation url, url provided does not have an objects.inv")
+                    return None
                 else:
                     raise RequestError(f"{r.status} {r.reason}")
-        return
+                    return None
+
+        data = await self._fuzzy_finder(
+            query = query, 
+            collection = list(self.cache[page].items()), 
+        )
+        return data
