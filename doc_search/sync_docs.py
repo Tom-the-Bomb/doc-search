@@ -56,7 +56,7 @@ class SyncScraper:
             key = name if display == '-' else display
             prefix = f'{subdirective}:' if domain == 'std' else ''
 
-            self.cache[url][f'{prefix}{key}'] = os.path.join(url, location)
+            self.cache[url][f'{prefix}{key}'] = __import__("os").path.join(url, location)
 
         return self.cache[url]
 
