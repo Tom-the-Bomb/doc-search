@@ -30,7 +30,7 @@ setup(
         'Topic :: Utilities'
     ],
     include_package_data = True,
-    packages             = ['doc-search'],
+    packages             = ['doc_search'],
     install_requires     = ['aiohttp', 'requests'],
     zip_safe        = True,
     python_requires = '>=3.7'
