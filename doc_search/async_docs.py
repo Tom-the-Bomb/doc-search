@@ -53,10 +53,8 @@ class AsyncScraper(SyncScraper):
 
                 elif r.status == 404:
                     raise RuntimeError("Invalid documentation url, url provided does not have an objects.inv")
-                    return None
                 else:
                     raise RequestError(f"{r.status} {r.reason}")
-                    return None
 
         data = await self._fuzzy_finder(
             query = query, 

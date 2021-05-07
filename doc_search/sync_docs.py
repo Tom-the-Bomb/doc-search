@@ -68,10 +68,9 @@ class SyncScraper:
 
             elif resp.status_code == 404:
                 raise RuntimeError("Invalid documentation url, url provided does not have an objects.inv")
-                return None
             else:
                 raise RequestError(f"{resp.status} {resp.reason}")
-                return None
+                
         data = self._fuzzy_finder(
             query = query, 
             collection = list(self.cache[page].items()), 
