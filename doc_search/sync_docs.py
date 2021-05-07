@@ -57,6 +57,9 @@ class SyncScraper:
 
     def search(self, query: str, *, page: str):
 
+        if not page.endswith("/"):
+            page += "/"
+
         if not self.cache.get(page):
             resp = requests.get(page + "objects.inv")
             
@@ -70,7 +73,7 @@ class SyncScraper:
                 self._split_line(page, data)
 
             elif resp.status_code == 404:
-                raise RuntimeError("Invalid documentation url, url provided does not have an objects.inv")
+                raise TypeError("Invalid documentation url, url provided does not have an objects.inv")
             else:
                 raise RequestError(f"{resp.status} {resp.reason}")
 

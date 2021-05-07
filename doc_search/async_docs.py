@@ -39,6 +39,9 @@ class AsyncScraper(SyncScraper):
         if not hasattr(self, "session"):
             self.session = ClientSession()
 
+        if not page.endswith("/"):
+            page += "/"
+
         if not self.cache.get(page):
             async with self.session.get(page + "objects.inv") as r:
 
@@ -52,7 +55,7 @@ class AsyncScraper(SyncScraper):
                     await self._split_line(page, data)
 
                 elif r.status == 404:
-                    raise RuntimeError("Invalid documentation url, url provided does not have an objects.inv")
+                    raise TypeError("Invalid documentation url, url provided does not have an objects.inv")
                 else:
                     raise RequestError(f"{r.status} {r.reason}")
 
