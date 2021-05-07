@@ -1,4 +1,5 @@
 import requests
+import os
 from io import BytesIO
 from typing import List, Optional, Tuple, Callable, Coroutine, Any
 
@@ -45,18 +46,12 @@ class SyncScraper:
             if not match:
                 continue
 
-            name, directive, __, location, display = match.groups()
-            domain, subdirective = directive.split(':')
-            if directive == 'std:doc':
-                subdirective = 'label'
+            name, __, __, path, display = match.groups()
 
-            if location.endswith('$'):
-                location = location[:-1] + name
+            path = path.strip("$") + name if path.endswith("$") else path
+            key  = name if display == '-' else display
 
-            key = name if display == '-' else display
-            prefix = f'{subdirective}:' if domain == 'std' else ''
-
-            self.cache[url][f'{prefix}{key}'] = __import__("os").path.join(url, location)
+            self.cache[url][key] = os.path.join(url, path)
 
         return self.cache[url]
 
