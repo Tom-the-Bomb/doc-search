@@ -1,5 +1,5 @@
 # Doc-search
-A simple package for searching documentation built with sphinx
+A simple package for searching documentation
 
 **Features**
 - Both async and sync support
@@ -42,3 +42,12 @@ else:
     for item, url in results:    #loop through the list of results
         print(f"{item} | {url}") #print out each result
 ```
+
+### Beta
+
+- Offers searches for **C** and **C++** docs using the `scraper.search_c` and `scraper.search_cpp` methods
+    **EX:** 
+    ```py
+    scraper = SyncScraper()
+    results = scraper.search_c("printf")
+    ```
