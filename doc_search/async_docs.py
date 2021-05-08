@@ -64,3 +64,25 @@ class AsyncScraper(SyncScraper):
             collection = list(self.cache[page].items()), 
         )
         return data
+
+    @executor()
+    def _parse_cpp_ref(self, data: str, type_: str):
+        return super()._parse_cpp_ref(data, type_)
+    
+    async def _do_c_or_cpp(self, query: str, type_: str):
+
+        if not hasattr(self, "session"):
+            self.session = ClientSession()
+
+        async with self.session.get(self._cpp_reference + "/mwiki/index.php", params={"search": query}) as r:
+            if r.ok:
+                data = await r.text()
+                return await self._parse_cpp_ref(data, type_)
+            else:
+                raise RequestError(f"{r.status} {r.reason}")
+
+    async def search_c(self, query: str):
+        return await self._do_c_or_cpp(query, type_="w/c/")
+
+    async def search_cpp(self, query: str):
+        return await self._do_c_or_cpp(query, type_="w/cpp/")

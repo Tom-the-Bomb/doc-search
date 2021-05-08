@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple, Callable, Coroutine, Any
 
 import zlib
 import re
+from bs4 import BeautifulSoup
 
 from .utils import RequestError
 
@@ -12,6 +13,7 @@ class SyncScraper:
 
     def __init__(self):
         self._line_regex = re.compile(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+(\S+)\s+(.*)')
+        self._cpp_reference = "https://en.cppreference.com"
         self.cache = {}
 
     def _fuzzy_finder(self, query: str, collection: List[Tuple[str, str]]):
@@ -82,3 +84,23 @@ class SyncScraper:
             collection = list(self.cache[page].items()), 
         )
         return data
+
+    def _parse_cpp_ref(self, data: str, type_: str):
+        data = BeautifulSoup(data)
+        data = data.find_all("div", class_="mw-search-result-heading")
+        data = [entry.contents[0] for entry in data]
+        data = [(entry.contents[0], self._cpp_reference + entry.get("href")) for entry in data if type_ in entry.get("href")]
+        return data
+
+    def _do_c_or_cpp(self, query: str, type_: str):
+        resp = requests.get(self._cpp_reference + "/mwiki/index.php", params={"search": query})
+        if resp.ok:
+            return self._parse_cpp_ref(resp.content, type_)
+        else:
+            raise RequestError(f"{resp.status} {resp.reason}")
+
+    def search_c(self, query: str):
+        return self._do_c_or_cpp(query, type_="w/c/")
+
+    def search_cpp(self, query: str):
+        return self._do_c_or_cpp(query, type_="w/cpp/")
