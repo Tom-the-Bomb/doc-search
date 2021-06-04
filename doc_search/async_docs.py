@@ -1,17 +1,18 @@
 from io import BytesIO
-from typing import List, Optional, Tuple, Callable
+from typing import Optional, Iterator
 from asyncio import get_event_loop, AbstractEventLoop
+
 from aiohttp import ClientSession
 
-from .utils import executor, RequestError
+from .utils import executor, RequestError, RESULTS
 from .sync_docs import SyncScraper
 
 class AsyncScraper(SyncScraper):
 
     def __init__(self,
-        loop : Optional[AbstractEventLoop] = None, 
-        session: Optional[ClientSession]   = None,
-    ):
+        loop: Optional[AbstractEventLoop] = None, 
+        session: Optional[ClientSession]  = None,
+    ) -> None:
         super().__init__()
 
         if loop:
@@ -21,22 +22,24 @@ class AsyncScraper(SyncScraper):
 
         if session:
             self.session = session
+        else:
+            self.session = None
         
     @executor()
-    def _fuzzy_finder(self, *args, **kwargs):
+    def _fuzzy_finder(self, *args, **kwargs) -> RESULTS:
         return super()._fuzzy_finder(*args, **kwargs)
 
     @executor()
-    def _parse_bytes(self, data: bytes):
+    def _parse_bytes(self, data: bytes) -> Iterator[str]:
         yield from super()._parse_bytes(data)
 
     @executor()
     def _split_line(self, url: str, data: str) -> None:
         return super()._split_line(url, data)
 
-    async def search(self, query: str, *, page: str):
+    async def search(self, query: str, *, page: str) -> Optional[RESULTS]:
 
-        if not hasattr(self, "session"):
+        if not self.session:
             self.session = ClientSession()
 
         if not page.endswith("/"):
@@ -61,17 +64,17 @@ class AsyncScraper(SyncScraper):
 
         data = await self._fuzzy_finder(
             query = query, 
-            collection = list(self.cache[page].items()), 
+            collection = self.cache[page], 
         )
         return data
 
     @executor()
-    def _parse_cpp_ref(self, data: str, type_: str):
+    def _parse_cpp_ref(self, data: str, type_: str) -> RESULTS:
         return super()._parse_cpp_ref(data, type_)
     
-    async def _do_c_or_cpp(self, query: str, type_: str):
+    async def _do_c_or_cpp(self, query: str, type_: str) -> Optional[RESULTS]:
 
-        if not hasattr(self, "session"):
+        if not self.session:
             self.session = ClientSession()
 
         async with self.session.get(self._cpp_reference + "/mwiki/index.php", params={"search": query}) as r:
@@ -81,8 +84,8 @@ class AsyncScraper(SyncScraper):
             else:
                 raise RequestError(f"{r.status} {r.reason}")
 
-    async def search_c(self, query: str):
+    async def search_c(self, query: str) -> RESULTS:
         return await self._do_c_or_cpp(query, type_="w/c/")
 
-    async def search_cpp(self, query: str):
+    async def search_cpp(self, query: str) -> RESULTS:
         return await self._do_c_or_cpp(query, type_="w/cpp/")

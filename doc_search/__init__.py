@@ -1,6 +1,6 @@
 from .async_docs import AsyncScraper
 from .sync_docs  import SyncScraper
-from .utils import executor
+from .utils import *
 
 __version__ = "1.0.7"
 
