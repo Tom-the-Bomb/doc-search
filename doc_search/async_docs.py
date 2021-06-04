@@ -6,11 +6,12 @@ from aiohttp import ClientSession
 from .utils import executor, RequestError
 from .sync_docs import SyncScraper
 
-class AsyncScraper(SyncScraper):
 
-    def __init__(self,
-        loop : Optional[AbstractEventLoop] = None, 
-        session: Optional[ClientSession]   = None,
+class AsyncScraper(SyncScraper):
+    def __init__(
+        self,
+        loop: Optional[AbstractEventLoop] = None,
+        session: Optional[ClientSession] = None,
     ):
         super().__init__()
 
@@ -21,7 +22,7 @@ class AsyncScraper(SyncScraper):
 
         if session:
             self.session = session
-        
+
     @executor()
     def _fuzzy_finder(self, *args, **kwargs):
         return super()._fuzzy_finder(*args, **kwargs)
@@ -55,26 +56,30 @@ class AsyncScraper(SyncScraper):
                     await self._split_line(page, data)
 
                 elif r.status == 404:
-                    raise TypeError("Invalid documentation url, url provided does not have an objects.inv")
+                    raise TypeError(
+                        "Invalid documentation url, url provided does not have an objects.inv"
+                    )
                 else:
                     raise RequestError(f"{r.status} {r.reason}")
 
         data = await self._fuzzy_finder(
-            query = query, 
-            collection = list(self.cache[page].items()), 
+            query=query,
+            collection=list(self.cache[page].items()),
         )
         return data
 
     @executor()
     def _parse_cpp_ref(self, data: str, type_: str):
         return super()._parse_cpp_ref(data, type_)
-    
+
     async def _do_c_or_cpp(self, query: str, type_: str):
 
         if not hasattr(self, "session"):
             self.session = ClientSession()
 
-        async with self.session.get(self._cpp_reference + "/mwiki/index.php", params={"search": query}) as r:
+        async with self.session.get(
+            self._cpp_reference + "/mwiki/index.php", params={"search": query}
+        ) as r:
             if r.ok:
                 data = await r.text()
                 return await self._parse_cpp_ref(data, type_)
