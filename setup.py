@@ -6,9 +6,9 @@ with open("doc_search/__init__.py") as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 
 setup(
-    name         = "doc-search", 
-    author       = "Tom-the-Bomb", 
-    version      = version, 
+    name         = "doc-search",
+    author       = "Tom-the-Bomb",
+    version      = version,
     description  = "A package for searching documentation built with sphinx",
     long_description              = open("README.md").read(),
     long_description_content_type = "text/markdown",

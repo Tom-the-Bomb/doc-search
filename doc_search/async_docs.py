@@ -10,7 +10,7 @@ from .sync_docs import SyncScraper
 class AsyncScraper(SyncScraper):
 
     def __init__(self,
-        loop: Optional[AbstractEventLoop] = None, 
+        loop: Optional[AbstractEventLoop] = None,
         session: Optional[ClientSession]  = None,
     ) -> None:
         super().__init__()
@@ -24,7 +24,7 @@ class AsyncScraper(SyncScraper):
             self.session = session
         else:
             self.session = None
-        
+
     @executor()
     def _fuzzy_finder(self, *args, **kwargs) -> RESULTS:
         return super()._fuzzy_finder(*args, **kwargs)
@@ -63,15 +63,15 @@ class AsyncScraper(SyncScraper):
                     raise RequestError(f"{r.status} {r.reason}")
 
         data = await self._fuzzy_finder(
-            query = query, 
-            collection = self.cache[page], 
+            query = query,
+            collection = self.cache[page],
         )
         return data
 
     @executor()
     def _parse_cpp_ref(self, data: str, type_: str) -> RESULTS:
         return super()._parse_cpp_ref(data, type_)
-    
+
     async def _do_c_or_cpp(self, query: str, type_: str) -> Optional[RESULTS]:
 
         if not self.session:
